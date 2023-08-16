@@ -13,10 +13,7 @@
 
 class Status : public JsonDecodable,
                public JsonEncodable,
-               public Printable,
-               public KPStateMachineObserver,
-               public ValveObserver,
-               public SensorArrayObserver {
+               public Printable {
 public:
     std::vector<int> valves;
     int currentValve   = -1;
@@ -30,7 +27,6 @@ public:
 
     float maxPressure = 0;
 
-    bool isFull          = false;
     bool preventShutdown = false;
 
     const char * currentStateName = nullptr;
@@ -51,71 +47,7 @@ public:
     }
 
 private:
-    const char * ValveObserverName() const override {
-        return "Status-Valve Observer";
-    }
 
-    const char * KPStateMachineObserverName() const override {
-        return "Status-KPStateMachine Observer";
-    }
-
-    const char * SensorManagerObserverName() const override {
-        return "Status-SensorArray Observer";
-    }
-
-    void valveDidUpdate(const Valve & valve) override {
-        if (valve.id == currentValve && valve.status == ValveStatus::sampled) {
-            currentValve = -1;
-        }
-
-        if (valve.status == ValveStatus::operating) {
-            currentValve = valve.id;
-        }
-
-        valves[valve.id] = valve.status;
-    }
-
-    void valveArrayDidUpdate(const std::vector<Valve> & valves) override {
-        currentValve = -1;
-        for (const Valve & v : valves) {
-            valveDidUpdate(v);
-        }
-    }
-
-    void stateDidBegin(const KPState * current) override {
-        currentStateName = current->getName();
-    }
-
-    //
-    // ──────────────────────────────────────────────────────  ──────────
-    //   :::::: S E N S O R S : :  :   :    :     :        :          :
-    // ────────────────────────────────────────────────────────────────
-    //
-
-    void flowSensorDidUpdate(TurbineFlowSensor::SensorData & values) override {
-        waterFlow    = values.lpm;
-        waterVolume  = values.volume;
-        sampleVolume = values.volume;
-    }
-
-    void pressureSensorDidUpdate(PressureSensor::SensorData & values) override {
-        pressure    = std::get<0>(values);
-        temperature = std::get<1>(values);
-        maxPressure = max(pressure, maxPressure);
-    }
-
-    void baro1DidUpdate(BaroSensor::SensorData & values) override {
-        barometric = std::get<0>(values);
-    }
-
-    void baro2DidUpdate(BaroSensor::SensorData & values) override {
-        waterDepth = std::get<0>(values);
-    }
-
-    bool isBatteryLow() const {
-        analogReadResolution(10);
-        return analogRead(HardwarePins::BATTERY_VOLTAGE) <= 860;  // 860 is around 12V of battery
-    }
 
 public:
     /** ────────────────────────────────────────────────────────────────────────────

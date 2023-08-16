@@ -34,9 +34,9 @@ namespace API {
         auto operator()(Arg<0>) -> R;
     };
 
-    /*struct StatusGet : APISpec<JsonResponse<Status::encodingSize()>(App &)> {
+    struct StatusGet : APISpec<JsonResponse<Status::encodingSize()>(App &)> {
         auto operator()(Arg<0>) -> R;
-    };
+    };/*
 
     struct ConfigGet : APISpec<JsonResponse<Config::encodingSize()>(App &)> {
         auto operator()(Arg<0>) -> R;

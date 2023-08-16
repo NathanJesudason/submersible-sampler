@@ -13,14 +13,14 @@ namespace API {
         }
 
         return response;
-    }
+    }*/
 
     auto StatusGet::operator()(App & app) -> R {
         R response;
         encodeJSON(app.status, response.to<JsonObject>());
         response["utc"] = now();
         return response;
-    }
+    }/*
 
     auto ConfigGet::operator()(App & app) -> R {
         R response;

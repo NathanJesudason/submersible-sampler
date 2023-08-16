@@ -18,7 +18,7 @@ void App::setupServerRouting() {
         const auto & response = dispatchAPI<API::StartHyperFlush>();
         res.json(response);
         res.end();
-    });
+    });*/
 
         // ────────────────────────────────────────────────────────────────────────────────
     // Get the current status
@@ -32,7 +32,7 @@ void App::setupServerRouting() {
         res.end();
 
         serializeJsonPretty(response, Serial);
-    });
+    }); /*
 
         // ────────────────────────────────────────────────────────────────────────────────
     // Get a list of valve objects
