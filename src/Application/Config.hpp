@@ -3,9 +3,11 @@
 #include <KPFoundation.hpp>
 
 #include <Application/Constants.hpp>
+#include <Utilities/JsonFileLoader.hpp>
 
 class Config : public JsonDecodable, public JsonEncodable, public Printable {
 public:
+    const char * configFilepath = nullptr;
     signed char valveUpperBound = 23;
     signed char numberOfValves  = 0;
     signed char maxPressure = 0;

@@ -5,11 +5,10 @@
 #include <KPState.hpp>
 #include <KPStateMachine.hpp>
 
-/*#include <Application/Config.hpp>
+#include <Application/Config.hpp>
 #include <Utilities/JsonFileLoader.hpp>
 #include <Valve/ValveStatus.hpp>
 #include <Valve/ValveObserver.hpp>
-#include <Components/SensorArrayObserver.hpp>*/
 
 class Status : public JsonDecodable,
                public JsonEncodable,
@@ -32,7 +31,7 @@ public:
     const char * currentStateName = nullptr;
     const char * currentTaskName  = nullptr;
 
-    // Status() = default;
+    Status() = default;
     // Status(const Status &) = delete;
     // Status & operator=(const Status &) = delete;
 
@@ -109,7 +108,7 @@ public:
 			&& dest[SENSOR_FLOW].set(waterFlow) 
 			&& dest[CURRENT_TASK].set(currentTaskName)
 			&& dest[CURRENT_STATE].set(currentStateName) 
-            && dest[LOW_BATTERY].set(isBatteryLow())
+            && dest[LOW_BATTERY].set(false)
             && dest[SAMPLE_VOLUME].set(sampleVolume);
         // clang-format on
     }

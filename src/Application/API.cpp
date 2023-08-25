@@ -1,4 +1,5 @@
 #include <Application/App.hpp>
+#include <TimeLib.h>
 
 namespace API {
     /*auto StartHyperFlush::operator()(App & app) -> R {
