@@ -4,6 +4,7 @@ void App::setupServerRouting() {
   server.handlers.reserve(13);
 
     server.get("/", [this](Request & req, Response & res) {
+      println(F("Sending UI"));
         if (strstr(req.header, "br")) {
             res.setHeader("Content-Encoding", "br");
             res.sendFile("index.br", fileLoader);
@@ -101,19 +102,6 @@ void App::setupServerRouting() {
     });
 
     // ────────────────────────────────────────────────────────────────────────────────
-    // Update existing task with incoming data
-    // ────────────────────────────────────────────────────────────────────────────────
-    server.post("/api/nowtask/save", [this](Request & req, Response & res) {
-        println(BLUE("SAVING NOW TASK"));
-        StaticJsonDocument<Task::encodingSize()> body;
-        deserializeJson(body, req.body);
-        serializeJsonPretty(body, Serial);
-
-        const auto & response = dispatchAPI<API::NowTaskSave>(body);
-        res.json(response);
-        res.end();
-    });
-    // ────────────────────────────────────────────────────────────────────────────────
     // Schedule a task (marking it active)
     // ────────────────────────────────────────────────────────────────────────────────
     server.post("/api/task/schedule", [this](Request & req, Response & res) {
@@ -149,7 +137,7 @@ void App::setupServerRouting() {
         const auto & response = dispatchAPI<API::TaskDelete>(body);
         res.json(response);
         res.end();
-    });
+    }); */
 
     // ────────────────────────────────────────────────────────────────────────────────
     // RTC update
@@ -161,7 +149,7 @@ void App::setupServerRouting() {
         const auto & response = dispatchAPI<API::RTCUpdate>(body);
         res.json(response);
         res.end();
-    });
+    }); /*
 
         server.get("/api/valves/reset", [this](Request & req, Response & res) {
         for (int i = 0; i < config.numberOfValves; i++) {

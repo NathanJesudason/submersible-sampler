@@ -69,11 +69,11 @@ namespace API {
     struct TaskUnschedule
         : APISpec<JsonResponse<Task::encodingSize() + 500>(App &, JsonDocument &)> {
         auto operator()(Arg<0>, Arg<1>) -> R;
-    };
+    }; */
 
     struct RTCUpdate : APISpec<JsonResponse<100>(App &, JsonDocument &)> {
         auto operator()(Arg<0>, Arg<1>) -> R;
-    };
+    }; /*
 
     struct PressureUpdate : APISpec<JsonResponse<100>(App &, JsonDocument &)> {
         auto operator()(Arg<0>, Arg<1>) -> R;

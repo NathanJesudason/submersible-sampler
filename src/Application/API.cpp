@@ -157,7 +157,7 @@ namespace API {
         encodeJSON(task, payload);
         response["success"] = "Task is now inactive";
         return response;
-    }
+    } */
 
     auto RTCUpdate::operator()(Arg<0> & app, Arg<1> & input) -> R {
         R response;
@@ -180,5 +180,5 @@ namespace API {
         }
 
         return response;
-    } */
+    }
 }  // namespace API

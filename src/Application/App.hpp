@@ -7,6 +7,8 @@
 #include <Application/Status.hpp>
 #include <Application/API.hpp>
 
+#include <Components/Power.hpp>
+
 #include <Valve/Valve.hpp>
 #include <Valve/ValveManager.hpp>
 
@@ -18,6 +20,8 @@ private:
 public:
   KPFileLoader fileLoader{"file-loader", 10}; //SDCS is 10 for Atmel M0
   KPServer server{"web-server", "subsampler", "ilab_sampler"};
+
+  Power power{"power"};
   Config config{"config.js"}; //config object will be read from SD card in future. For now, hard code.
   Status status;
 
@@ -30,9 +34,18 @@ public:
   void setup() override {
     Serial.begin(115200);
     while(!Serial) {};
-    status.init(config);
+
+    addComponent(power);
+    randomSeed(now());
+
+    
     addComponent(server);
     server.begin();
+    setupServerRouting();
+
+    addComponent(fileLoader);
+
+    status.init(config);
   }
 
   void update() override {
