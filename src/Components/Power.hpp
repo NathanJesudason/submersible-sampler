@@ -114,6 +114,31 @@ class Power : public KPComponent {
     }
 
     /** ────────────────────────────────────────────────────────────────────────────
+     *  Schedule RTC alarm given TimeElements
+     *
+     *  @param future Must be in the future, otherwise this method does nothing
+     *  ──────────────────────────────────────────────────────────────────────────── */
+    void scheduleNextAlarm(TimeElements future) {
+        unsigned long utc = makeTime(future);
+        scheduleNextAlarm(utc);
+    }
+
+    /** ────────────────────────────────────────────────────────────────────────────
+     *  Schedule RTC alarm given utc
+     *
+     *  @param utc Must be in the future, otherwise this method does nothing
+     *  ──────────────────────────────────────────────────────────────────────────── */
+    void scheduleNextAlarm(unsigned long utc) {
+        unsigned long timestamp = now();
+        if (utc < timestamp) {
+            return;
+        }
+
+        println("Alarm triggering in: ", utc - timestamp, " seconds");
+        setTimeout(utc - timestamp, true);
+    }
+
+    /** ────────────────────────────────────────────────────────────────────────────
      *  Put the chip into the low power state for specified number of seconds
      *
      *  @param seconds How long in seconds

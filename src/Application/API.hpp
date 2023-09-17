@@ -29,14 +29,10 @@ namespace API {
     struct StartNowTask : APISpec<JsonResponse<300>(App &)> {
         auto operator()(Arg<0>) -> R;
     };
-    
-    struct StartDebubble : APISpec<JsonResponse<300>(App &)> {
-        auto operator()(Arg<0>) -> R;
-    };
 
     struct StatusGet : APISpec<JsonResponse<Status::encodingSize()>(App &)> {
         auto operator()(Arg<0>) -> R;
-    };/*
+    };
 
     struct ConfigGet : APISpec<JsonResponse<Config::encodingSize()>(App &)> {
         auto operator()(Arg<0>) -> R;
@@ -54,10 +50,6 @@ namespace API {
         auto operator()(Arg<0>, Arg<1>) -> R;
     };
 
-    struct NowTaskSave : APISpec<JsonResponse<NowTask::encodingSize() + 500>(App &, JsonDocument &)> {
-        auto operator()(Arg<0>, Arg<1>) -> R;
-    };
-
     struct TaskDelete : APISpec<JsonResponse<500>(App &, JsonDocument &)> {
         auto operator()(Arg<0>, Arg<1>) -> R;
     };
@@ -69,7 +61,7 @@ namespace API {
     struct TaskUnschedule
         : APISpec<JsonResponse<Task::encodingSize() + 500>(App &, JsonDocument &)> {
         auto operator()(Arg<0>, Arg<1>) -> R;
-    }; */
+    }; 
 
     struct RTCUpdate : APISpec<JsonResponse<100>(App &, JsonDocument &)> {
         auto operator()(Arg<0>, Arg<1>) -> R;
