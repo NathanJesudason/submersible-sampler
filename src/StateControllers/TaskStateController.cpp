@@ -55,7 +55,7 @@ void TaskStateController::setup() {
         }
     });
 
-    registerState(SharedStates::AlcoholPurge(), PRESERVE_FLUSH, [this](int code) {
+    registerState(SharedStates::PreserveFlush(), PRESERVE_FLUSH, [this](int code) {
         //Pressure above system max, panic exit
         if (code == -1)
             return transitionTo(STOP);

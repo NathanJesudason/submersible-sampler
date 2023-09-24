@@ -163,7 +163,9 @@ namespace SharedStates {
 
     void Sample::enter(KPStateMachine & sm) {
         // We set the latch valve to intake mode, turn on the filter valve, then the pump
-        /*auto & app = *static_cast<App *>(sm.controller);
+        auto & app = *static_cast<App *>(sm.controller); 
+        app.pwm.writePump(app.currentValveIdToPin(), PumpStatus::forwards);
+        /*
         app.shift.setAllRegistersLow();
         app.intake.on();
         setTimeCondition(5, [&app](){
@@ -210,7 +212,7 @@ namespace SharedStates {
         setCondition(max_system_condition, [&]() { sm.next(-1); });
 
         setCondition(condition, [&]() { sm.next(0); });*/
-        setTimeCondition(time + 6, [&]() { sm.next(0); });
+        setTimeCondition(time, [&]() { sm.next(0); });
     }
 
     void Sample::update(KPStateMachine & sm){
@@ -427,7 +429,9 @@ namespace SharedStates {
     };
 
     void Preserve::enter(KPStateMachine & sm) {
-/*         auto & app = *static_cast<App *>(sm.controller);
+        auto & app = *static_cast<App *>(sm.controller); 
+        app.pwm.writePump(app.currentValveIdToPin(), PumpStatus::forwards);
+        /*
         app.pump.off();
         app.shift.writeAllRegistersLow();
         app.intake.off();
@@ -469,6 +473,36 @@ namespace SharedStates {
         app.shift.setPin(TPICDevices::ALCHOHOL_VALVE, HIGH);
         app.shift.setPin(app.currentValveIdToPin(), HIGH);
         app.shift.write(); */
+    }
+
+  void PreserveFlush::enter(KPStateMachine & sm) {
+        auto & app = *static_cast<App *>(sm.controller); 
+        app.pwm.writePump(app.currentValveIdToPin(), PumpStatus::backwards);
+        /*
+        app.pump.off();
+        app.shift.writeAllRegistersLow();
+        app.intake.off();
+        setTimeCondition(5, [&app](){
+            app.shift.setPin(TPICDevices::ALCHOHOL_VALVE, HIGH);
+            app.shift.setPin(app.currentValveIdToPin(), HIGH);
+            app.shift.write();
+        });
+
+        setTimeCondition(6, [&app](){
+            app.pump.on();
+        });
+
+        auto const max_system_condition = [&]() {
+            //This conditional is for above system pressure
+            if(app.status.pressure >= app.status.maxSystemPressure) {
+                return true;
+            }
+            return false;
+        };
+
+        setCondition(max_system_condition, [&]() { sm.next(-1); }); */
+
+        setTimeCondition(time + 6, [&]() { sm.next(0); });
     }
 
     void AlcoholPurge::enter(KPStateMachine & sm) {

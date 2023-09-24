@@ -158,16 +158,18 @@ class Power : public KPComponent {
         TimeElements future;
         breakTime(rtc.now().unixtime() + seconds, future);
         rtc.deconfigureAllTimers();
+        println("Setting alarm");
 
         //use second frequency if less than a 255 seconds
         if(seconds < 255)
           rtc.enableCountdownTimer(PCF8523_FrequencyHour, min((seconds), (unsigned long) 255));
-        //Use minute frequency if time is less than 255 minutes
+        //Use minute frequency if time is less than 255 minustes
         if(seconds < 15300)
           rtc.enableCountdownTimer(PCF8523_FrequencyHour, min((seconds / 60), (unsigned long) 255));
         //Use hour frequency, clamp to 255 hours
         rtc.enableCountdownTimer(PCF8523_FrequencyHour, min((seconds / 3600), (unsigned long) 255));
         if (usingInterrupt) {
+            println("Attaching Interrupt");
             attachInterrupt(digitalPinToInterrupt(HardwarePins::RTC_INTERRUPT), rtc_isr, FALLING);
         }
     }

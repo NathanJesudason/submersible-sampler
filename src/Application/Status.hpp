@@ -12,7 +12,8 @@
 
 class Status : public JsonDecodable,
                public JsonEncodable,
-               public Printable {
+               public Printable,
+               public ValveObserver {
 public:
     std::vector<int> valves;
     int currentValve   = -1;
@@ -47,6 +48,28 @@ public:
 
 private:
 
+      const char * ValveObserverName() const override {
+        return "Status-Valve Observer";
+    }
+
+    void valveDidUpdate(const Valve & valve) override {
+        if (valve.id == currentValve && valve.status == ValveStatus::sampled) {
+            currentValve = -1;
+        }
+
+        if (valve.status == ValveStatus::operating) {
+            currentValve = valve.id;
+        }
+
+        valves[valve.id] = valve.status;
+    }
+
+    void valveArrayDidUpdate(const std::vector<Valve> & valves) override {
+        currentValve = -1;
+        for (const Valve & v : valves) {
+            valveDidUpdate(v);
+        }
+    }
 
 public:
     /** ────────────────────────────────────────────────────────────────────────────

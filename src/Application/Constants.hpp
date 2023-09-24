@@ -85,7 +85,7 @@ namespace TaskKeys {
     __k_auto ID              = "id";
     __k_auto NAME            = "name";
     __k_auto STATUS          = "status";
-    __k_auto VALVES          = "valves";
+    __k_auto VALVES          = "pumps";
     __k_auto VALVES_OFFSET   = "valvesOffset";
     __k_auto CREATED_AT      = "createdAt";
     __k_auto SCHEDULE        = "schedule";

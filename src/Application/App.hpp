@@ -12,6 +12,7 @@
 #include <Application/ScheduleReturnCode.hpp>
 
 #include <Components/Power.hpp>
+#include <Components/PWMDriver.hpp>
 
 #include <Valve/Valve.hpp>
 #include <Valve/ValveManager.hpp>
@@ -45,11 +46,11 @@ public:
   KPServer server{"web-server", "subsampler", "ilab_sampler"};
 
   Power power{"power"};
+  PWMDriver pwm{"pwm-driver", 24}; 
   Config config{ProgramSettings::CONFIG_FILE_PATH};
   Status status;
 
   TaskStateController taskStateController;
-
 
   ValveManager vm;
   TaskManager tm;
@@ -78,6 +79,8 @@ public:
     addComponent(ActionScheduler::sharedInstance());
     addComponent(fileLoader);
 
+    addComponent(pwm);
+
     //
     // ─── LOADING CONFIG FILE ─────────────────────────────────────────
     //
@@ -85,6 +88,17 @@ public:
     JsonFileLoader loader;
     loader.load(config.configFilepath, config);
     status.init(config);
+
+    vm.init(config);
+    vm.addObserver(status);
+    vm.loadValvesFromDirectory(config.valveFolder);
+
+    tm.init(config);
+    tm.addObserver(this);
+    tm.loadTasksFromDirectory(config.taskFolder);
+
+    addComponent(taskStateController);
+    taskStateController.idle();
 
     // RTC Interrupt callback
     power.onInterrupt([this]() {
@@ -229,6 +243,10 @@ public:
             }
         }
     }
+
+  int currentValveIdToPin() {
+        return status.currentValve;
+  }
 
   void invalidateTaskAndFreeUpValves(Task & task) {
         for (auto i = task.getValveOffsetStart(); i < task.getNumberOfValves(); i++) {
