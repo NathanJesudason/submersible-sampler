@@ -3,11 +3,13 @@
 
 void Main::Idle::enter(KPStateMachine & sm) {
     auto & app = *static_cast<App *>(sm.controller);
+    app.pwm.writeAllPumpsOff();
     println(app.scheduleNextActiveTask().description());
 };
 
 void Main::Stop::enter(KPStateMachine & sm) {
     auto & app = *static_cast<App *>(sm.controller);
+    app.pwm.writeAllPumpsOff();
     /*app.pump.off();
     app.shift.writeAllRegistersLow();
     app.intake.off();

@@ -54,6 +54,7 @@ namespace Main {
 
         void begin() override {
             configureStates();
+            println("transitioning to sample");
             transitionTo(SAMPLE);
         }
 

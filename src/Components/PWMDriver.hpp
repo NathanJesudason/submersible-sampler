@@ -2,6 +2,7 @@
 #include <KPFoundation.hpp>
 #include <Components/PumpStatus.hpp>
 #include <Adafruit_PWMServoDriver.h>
+#include <Wire.h>
 
 
 class PWMDriver : public KPComponent {
@@ -9,14 +10,26 @@ class PWMDriver : public KPComponent {
     const int capacityPerDriver = 16;
     int8_t* pumps;
     int pumpsCount;
-    Adafruit_PWMServoDriver drives[2] = {Adafruit_PWMServoDriver(0x40), Adafruit_PWMServoDriver(0x41)};
+    //Adafruit_PWMServoDriver driver = Adafruit_PWMServoDriver();
+    Adafruit_PWMServoDriver drives[2] = {Adafruit_PWMServoDriver(), Adafruit_PWMServoDriver(0x41)};
     PWMDriver(const char * name, int pumpCount) : KPComponent(name), pumpsCount(pumpCount) {
       pumps = new int8_t[pumpCount]();
     }
     void setup() override {
-      drives[0].setPWMFreq(1600);
-      drives[1].setPWMFreq(1600);
+      //driver.begin();
+      drives[0].begin();
+      drives[1].begin();
+      println("setting pwm");
+      drives[0].setOscillatorFrequency(27040020);
+      drives[1].setOscillatorFrequency(27000000);
+      drives[0].setPWMFreq(50);
+      drives[1].setPWMFreq(50);
+      delay(10);
+      //drives[1].setPWMFreq(1600);
+      println("setting pumps off");
       writeAllPumpsOff();
+      delay(5000);
+      println("done");
     }
 
     void writeAllPumpsOff(){
@@ -26,20 +39,10 @@ class PWMDriver : public KPComponent {
       }
     }
 
-    void writeAllPumps(){
-      for(int i = 0; i < pumpsCount; i++){
-        if(pumps[i] == PumpStatus::off)
-          drives[i / capacityPerDriver].writeMicroseconds(i % capacityPerDriver, 1500);
-        else if (pumps[i] == PumpStatus::forwards)
-          drives[i / capacityPerDriver].writeMicroseconds(i % capacityPerDriver, 1900);
-        else
-          drives[i / capacityPerDriver].writeMicroseconds(i % capacityPerDriver, 1100);
-      }
-    }
-
     void writePump(int pump, PumpStatus signal){
       if(pump < 0 || pump >= pumpsCount)
         return;
+      //Temporarily reducing forwards strength
       pumps[pump] = signal;
       if(pumps[pump] == PumpStatus::off)
         drives[pump / capacityPerDriver].writeMicroseconds(pump % capacityPerDriver, 1500);

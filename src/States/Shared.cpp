@@ -505,6 +505,22 @@ namespace SharedStates {
         setTimeCondition(time + 6, [&]() { sm.next(0); });
     }
 
+    void PreserveFlush::update(KPStateMachine & sm){
+        if(timeSinceLastTransition() < 5000){
+            return;
+        }
+        if ((unsigned long) (millis() - updateTime) < updateDelay) {
+            return;
+        }
+
+        updateTime = millis();
+/*         auto & app = *static_cast<App *>(sm.controller);
+        app.shift.setAllRegistersLow();
+        app.shift.setPin(TPICDevices::ALCHOHOL_VALVE, HIGH);
+        app.shift.setPin(app.currentValveIdToPin(), HIGH);
+        app.shift.write(); */
+    }
+
     void AlcoholPurge::enter(KPStateMachine & sm) {
 /*         auto & app = *static_cast<App *>(sm.controller);
         app.shift.writeAllRegistersLow();

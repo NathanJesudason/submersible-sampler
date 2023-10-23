@@ -25,6 +25,8 @@
 
 #include <Application/API.hpp>
 
+#include <Components/PressureSensor.hpp>
+
 class App : public KPController, public TaskObserver {
 private:
   void setupServerRouting();
@@ -46,11 +48,13 @@ public:
   KPServer server{"web-server", "subsampler", "ilab_sampler"};
 
   Power power{"power"};
-  PWMDriver pwm{"pwm-driver", 24}; 
+  PWMDriver pwm{"pwm-driver", 16}; 
   Config config{ProgramSettings::CONFIG_FILE_PATH};
   Status status;
 
   TaskStateController taskStateController;
+
+  PressureSensor pressureSensor{"pressure-sensor"};
 
   ValveManager vm;
   TaskManager tm;
@@ -98,7 +102,11 @@ public:
     tm.loadTasksFromDirectory(config.taskFolder);
 
     addComponent(taskStateController);
+    taskStateController.addObserver(status);
     taskStateController.idle();
+
+    addComponent(pressureSensor);
+    //pressureSensor.addObserver(status);
 
     // RTC Interrupt callback
     power.onInterrupt([this]() {
@@ -110,10 +118,10 @@ public:
     // Regular log header
     if (!SD.exists(config.logFile)) {
         File file = SD.open(config.logFile, FILE_WRITE);
-        KPStringBuilder<404> header{"UTC, Formatted Time, Task Name, Valve Number, Current "
+        KPStringBuilder<404> header{"UTC, Formatted Time, Task Name, Pump Number, Current "
                                     "State, Config Sample Time, Config Sample "
                                     "Pressure, Config Sample Volume, Temperature Recorded,"
-                                    "Max Pressure Recorded, Volume Recorded, Flow Rate\n"};
+                                    "Max Pressure Recorded\n"};
         file.println(header);
         file.close();
     }
@@ -121,13 +129,84 @@ public:
     // Detail log header
     if (!SD.exists("detail.csv")) {
         File file = SD.open("detail.csv", FILE_WRITE);
-        KPStringBuilder<404> header{"UTC, Formatted Time, Task Name, Valve Number, Current "
+        KPStringBuilder<404> header{"UTC, Formatted Time, Task Name, Pump Number, Current "
                                     "State, Config Sample Time, Config Sample "
                                     "Pressure, Config Sample Volume, Temperature Recorded,"
-                                    "Pressure Recorded, Volume Recorded, Flow Rate\n"};
+                                    "Pressure Recorded\n"};
         file.println(header);
         file.close();
     }
+
+    runForever(1000, "detailLog", [&]() { logDetail("detail.csv"); });
+
+  }
+
+      void logAfterSample() {
+        if(currentTaskId)
+          return;
+        SD.begin(HardwarePins::SD_CARD);
+        File log    = SD.open(config.logFile, FILE_WRITE);
+        
+        Task & task = tm.tasks.at(currentTaskId);
+
+        char formattedTime[64];
+        auto utc = now();
+        sprintf(
+            formattedTime, "%u/%u/%u %02u:%02u:%02u GMT+0", year(utc), month(utc), day(utc),
+            hour(utc), minute(utc), second(utc));
+
+        KPStringBuilder<544> data{
+            utc,
+            ",",
+            formattedTime,
+            ",",
+            task.name,
+            ",",
+            status.currentValve,
+            ",",
+            status.currentStateName,
+            ",",
+            task.sampleTime,
+            ",",
+            status.temperature,
+            ",",
+            status.maxPressure};
+        log.println(data);
+        log.flush();
+        log.close();
+      }
+
+  void logDetail(const char * filename) {
+    if(!currentTaskId)
+      return;
+    SD.begin(HardwarePins::SD_CARD);
+    File log    = SD.open(filename, FILE_WRITE);
+    
+    char formattedTime[64];
+    auto utc = now();
+    sprintf(
+        formattedTime, "%u/%u/%u %02u:%02u:%02u GMT+0", year(utc), month(utc), day(utc),
+        hour(utc), minute(utc), second(utc));
+    Task & task = tm.tasks.at(currentTaskId);
+    KPStringBuilder<544> data{
+        utc,
+        ",",
+        formattedTime,
+        ",",
+        task.name,
+        ",",
+        status.currentValve,
+        ",",
+        status.currentStateName,
+        ",",
+        task.sampleTime,
+        ",",
+        status.temperature,
+        ",",
+        status.pressure};
+    log.println(data);
+    log.flush();
+    log.close();
   }
 
   
@@ -258,6 +337,7 @@ public:
     }
 
   void update() override {
+    pwm.writePump(0, PumpStatus::forwards);
     KPController::update();
   };
 };
