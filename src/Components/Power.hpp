@@ -42,8 +42,7 @@ class Power : public KPComponent {
       // rtc.calibrate(PCF8523_TwoHours, 0); // Un-comment to cancel previous calibration
       // rtc.calibrate(PCF8523_TwoHours, offset); // Un-comment to perform calibration once drift (seconds) and observation period (seconds) are correct
 
-      //Note: unable to sync provider because of the way RTC is defined in library, so time drift might be possible (manually resync overtime?)
-      //setSyncProvider(rtc.now().unixtime);
+      //Note: unable to sync provider because of the way RTC is defined in library, so we manually set resync time in App.hpp
       setTime(rtc.now().unixtime());
     }
 
@@ -173,7 +172,6 @@ class Power : public KPComponent {
             attachInterrupt(digitalPinToInterrupt(HardwarePins::RTC_INTERRUPT), rtc_isr, FALLING);
         }
     }
-
 
     /** ────────────────────────────────────────────────────────────────────────────
      *  Convert compiled timestrings to seconds since 1 Jan 1970

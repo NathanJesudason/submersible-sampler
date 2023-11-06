@@ -12,6 +12,7 @@ class PressureSensor : public KPComponent, public KPSubject<PressureSensorObserv
     PressureSensor(const char * name) : KPComponent(name) {}
     KellerLD sensor;
     unsigned long updateTime;
+    bool initialized;
 
     void setup() override {
       updateTime = millis();
@@ -23,7 +24,8 @@ class PressureSensor : public KPComponent, public KPSubject<PressureSensorObserv
 
       sensor.setFluidDensity(1029); // kg/m^3 (freshwater, 1029 for seawater)
 
-      if(sensor.isInitialized()) {
+      initialized = sensor.isInitialized();
+      if(initialized) {
         println("Sensor connected.");
       } else {
         println("Sensor not connected.");
@@ -31,7 +33,7 @@ class PressureSensor : public KPComponent, public KPSubject<PressureSensorObserv
     }
 
   void update() override {
-    if (millis() < updateTime)
+    if (!initialized && millis() < updateTime)
       return;
     updateTime = millis() + 1000;
     // Update pressure and temperature readings
@@ -50,13 +52,7 @@ class PressureSensor : public KPComponent, public KPSubject<PressureSensorObserv
 
     /*print("Depth: ");
     print(sensor.depth());
-    println(" m");
-
-    print("Altitude: ");
-    print(sensor.altitude());
-    println(" m above mean sea level");
-
-    delay(1000);*/
+    println(" m"); */
   }
 
 };

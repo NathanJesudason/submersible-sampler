@@ -79,6 +79,7 @@ namespace ConfigKeys {
     __k_auto FOLDER_VALVE      = "valveFolder";
     __k_auto PRESSURE_CUTOFF   = "cutoffPressure";
     __k_auto PRESSURE_MAX      = "maxPressure";
+    __k_auto RTC_OFFSET        = "RTCOffset";
 }  // namespace ConfigKeys
 
 namespace TaskKeys {

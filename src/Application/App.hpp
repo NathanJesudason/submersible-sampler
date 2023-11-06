@@ -106,7 +106,7 @@ public:
     taskStateController.idle();
 
     addComponent(pressureSensor);
-    //pressureSensor.addObserver(status);
+    pressureSensor.addObserver(status);
 
     // RTC Interrupt callback
     power.onInterrupt([this]() {
@@ -138,6 +138,10 @@ public:
     }
 
     runForever(1000, "detailLog", [&]() { logDetail("detail.csv"); });
+    //5 minutes in millis
+    runForever(300000, "timeResync", [&](){
+        setTime(power.rtc.now().unixtime());
+    });
 
   }
 
