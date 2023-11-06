@@ -80,6 +80,8 @@ namespace ConfigKeys {
     __k_auto PRESSURE_CUTOFF   = "cutoffPressure";
     __k_auto PRESSURE_MAX      = "maxPressure";
     __k_auto RTC_OFFSET        = "RTCOffset";
+    __k_auto PWM_1_OSC_FREQ    = "OscillatorFrequency1";
+    __k_auto PWM_2_OSC_FREQ    = "OscillatorFrequency2";
 }  // namespace ConfigKeys
 
 namespace TaskKeys {

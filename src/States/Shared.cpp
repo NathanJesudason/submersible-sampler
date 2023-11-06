@@ -165,53 +165,6 @@ namespace SharedStates {
         // We set the latch valve to intake mode, turn on the filter valve, then the pump
         auto & app = *static_cast<App *>(sm.controller); 
         app.pwm.writePump(app.currentValveIdToPin(), PumpStatus::forwards);
-        /*
-        app.shift.setAllRegistersLow();
-        app.intake.on();
-        setTimeCondition(5, [&app](){
-            app.shift.setPin(app.currentValveIdToPin(), HIGH);
-            app.shift.write();
-        });
-
-        setTimeCondition(6,  [&app](){
-           app.pump.on(); 
-        });
-        
-        app.sensors.flow.resetVolume();
-        app.sensors.flow.startMeasurement();
-
-        app.status.maxPressure = 0;
-        this->condition        = nullptr;
-
-        // This condition will be evaluated repeatedly until true then the callback will be executed
-        // once
-        auto const condition = [&]() {
-            if (app.sensors.flow.volume >= volume) {
-                this->condition = "volume";
-            }
-            //If the pressure is above the max pressure, we want the other condition to hit instead
-            if (app.status.pressure >= app.status.cutoffPressure && app.status.pressure < app.status.maxSystemPressure) {
-                this->condition = "pressure";
-            }
-
-            if (timeSinceLastTransition() - 6 >= secsToMillis(time)) { //minus 6 to account for delay
-                this->condition = "time";
-            }
-
-            return this->condition != nullptr;
-        };
-
-        auto const max_system_condition = [&]() {
-            //This conditional is for above system pressure
-            if(app.status.pressure >= app.status.maxSystemPressure) {
-                return true;
-            }
-            return false;
-        };
-
-        setCondition(max_system_condition, [&]() { sm.next(-1); });
-
-        setCondition(condition, [&]() { sm.next(0); });*/
         setTimeCondition(time, [&]() { sm.next(0); });
     }
 

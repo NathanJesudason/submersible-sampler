@@ -15,7 +15,7 @@ class PressureSensor : public KPComponent, public KPSubject<PressureSensorObserv
     bool initialized;
 
     void setup() override {
-      updateTime = millis();
+      updateTime = millis() + 1000;
 
       Wire.begin();
 
@@ -29,12 +29,14 @@ class PressureSensor : public KPComponent, public KPSubject<PressureSensorObserv
         println("Sensor connected.");
       } else {
         println("Sensor not connected.");
+        delay(1000);
       }
     }
 
   void update() override {
-    if (!initialized && millis() < updateTime)
+    if ((!initialized) || (millis() < updateTime)){
       return;
+    }
     updateTime = millis() + 1000;
     // Update pressure and temperature readings
     sensor.read();
