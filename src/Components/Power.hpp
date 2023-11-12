@@ -42,8 +42,7 @@ class Power : public KPComponent {
       // rtc.calibrate(PCF8523_TwoHours, 0); // Un-comment to cancel previous calibration
       // rtc.calibrate(PCF8523_TwoHours, offset); // Un-comment to perform calibration once drift (seconds) and observation period (seconds) are correct
 
-      //Note: unable to sync provider because of the way RTC is defined in library, so time drift might be possible (manually resync overtime?)
-      //setSyncProvider(rtc.now().unixtime);
+      //Note: unable to sync provider because of the way RTC is defined in library, so we manually set resync time in App.hpp
       setTime(rtc.now().unixtime());
     }
 
@@ -114,6 +113,31 @@ class Power : public KPComponent {
     }
 
     /** ────────────────────────────────────────────────────────────────────────────
+     *  Schedule RTC alarm given TimeElements
+     *
+     *  @param future Must be in the future, otherwise this method does nothing
+     *  ──────────────────────────────────────────────────────────────────────────── */
+    void scheduleNextAlarm(TimeElements future) {
+        unsigned long utc = makeTime(future);
+        scheduleNextAlarm(utc);
+    }
+
+    /** ────────────────────────────────────────────────────────────────────────────
+     *  Schedule RTC alarm given utc
+     *
+     *  @param utc Must be in the future, otherwise this method does nothing
+     *  ──────────────────────────────────────────────────────────────────────────── */
+    void scheduleNextAlarm(unsigned long utc) {
+        unsigned long timestamp = now();
+        if (utc < timestamp) {
+            return;
+        }
+
+        println("Alarm triggering in: ", utc - timestamp, " seconds");
+        setTimeout(utc - timestamp, true);
+    }
+
+    /** ────────────────────────────────────────────────────────────────────────────
      *  Put the chip into the low power state for specified number of seconds
      *
      *  @param seconds How long in seconds
@@ -133,20 +157,21 @@ class Power : public KPComponent {
         TimeElements future;
         breakTime(rtc.now().unixtime() + seconds, future);
         rtc.deconfigureAllTimers();
+        println("Setting alarm");
 
         //use second frequency if less than a 255 seconds
         if(seconds < 255)
           rtc.enableCountdownTimer(PCF8523_FrequencyHour, min((seconds), (unsigned long) 255));
-        //Use minute frequency if time is less than 255 minutes
+        //Use minute frequency if time is less than 255 minustes
         if(seconds < 15300)
           rtc.enableCountdownTimer(PCF8523_FrequencyHour, min((seconds / 60), (unsigned long) 255));
         //Use hour frequency, clamp to 255 hours
         rtc.enableCountdownTimer(PCF8523_FrequencyHour, min((seconds / 3600), (unsigned long) 255));
         if (usingInterrupt) {
+            println("Attaching Interrupt");
             attachInterrupt(digitalPinToInterrupt(HardwarePins::RTC_INTERRUPT), rtc_isr, FALLING);
         }
     }
-
 
     /** ────────────────────────────────────────────────────────────────────────────
      *  Convert compiled timestrings to seconds since 1 Jan 1970

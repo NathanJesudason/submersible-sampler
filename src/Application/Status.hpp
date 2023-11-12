@@ -9,10 +9,14 @@
 #include <Utilities/JsonFileLoader.hpp>
 #include <Valve/ValveStatus.hpp>
 #include <Valve/ValveObserver.hpp>
+#include <Components/PressureSensorObserver.hpp>
 
 class Status : public JsonDecodable,
                public JsonEncodable,
-               public Printable {
+               public Printable,
+               public ValveObserver,
+               public KPStateMachineObserver,
+               public PressureSensorObserver {
 public:
     std::vector<int> valves;
     int currentValve   = -1;
@@ -47,6 +51,46 @@ public:
 
 private:
 
+      const char * ValveObserverName() const override {
+        return "Status-Valve Observer";
+    }
+
+    const char * PressureSensorObserverName() const override {
+      return "Status-Pressure Sensor Observer";
+    }
+
+        const char * KPStateMachineObserverName() const override {
+        return "Status-KPStateMachine Observer";
+    }
+
+    void pressureSensorDidUpdate(float p, float t) override {
+      pressure = p;
+      temperature = t;
+      maxPressure = max(pressure, maxPressure);
+    }
+
+    void valveDidUpdate(const Valve & valve) override {
+        if (valve.id == currentValve && valve.status == ValveStatus::sampled) {
+            currentValve = -1;
+        }
+
+        if (valve.status == ValveStatus::operating) {
+            currentValve = valve.id;
+        }
+
+        valves[valve.id] = valve.status;
+    }
+
+    void valveArrayDidUpdate(const std::vector<Valve> & valves) override {
+        currentValve = -1;
+        for (const Valve & v : valves) {
+            valveDidUpdate(v);
+        }
+    }
+
+    void stateDidBegin(const KPState * current) override {
+        currentStateName = current->getName();
+    }
 
 public:
     /** ────────────────────────────────────────────────────────────────────────────

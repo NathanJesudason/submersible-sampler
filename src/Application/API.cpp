@@ -21,7 +21,7 @@ namespace API {
         encodeJSON(app.status, response.to<JsonObject>());
         response["utc"] = now();
         return response;
-    }/*
+    }
 
     auto ConfigGet::operator()(App & app) -> R {
         R response;
@@ -147,7 +147,6 @@ namespace API {
         Task & task = app.tm.tasks[id];
         if (app.currentTaskId == task.id) {
             app.invalidateTaskAndFreeUpValves(task);
-            app.newStateController.stop();
         } else {
             app.invalidateTaskAndFreeUpValves(task);
             app.tm.writeToDirectory();
@@ -157,7 +156,7 @@ namespace API {
         encodeJSON(task, payload);
         response["success"] = "Task is now inactive";
         return response;
-    } */
+    } 
 
     auto RTCUpdate::operator()(Arg<0> & app, Arg<1> & input) -> R {
         R response;

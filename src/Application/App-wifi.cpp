@@ -33,7 +33,7 @@ void App::setupServerRouting() {
         res.end();
 
         serializeJsonPretty(response, Serial);
-    }); /*
+    });
 
         // ────────────────────────────────────────────────────────────────────────────────
     // Get a list of valve objects
@@ -137,7 +137,7 @@ void App::setupServerRouting() {
         const auto & response = dispatchAPI<API::TaskDelete>(body);
         res.json(response);
         res.end();
-    }); */
+    });
 
     // ────────────────────────────────────────────────────────────────────────────────
     // RTC update
@@ -149,14 +149,13 @@ void App::setupServerRouting() {
         const auto & response = dispatchAPI<API::RTCUpdate>(body);
         res.json(response);
         res.end();
-    }); /*
+    }); 
 
         server.get("/api/valves/reset", [this](Request & req, Response & res) {
         for (int i = 0; i < config.numberOfValves; i++) {
             vm.setValveStatus(i, ValveStatus::Code(config.valves[i]));
         }
         vm.writeToDirectory();
-        ntm.task.valve = 0;
         res.end();
-    }); */
+    }); 
 }

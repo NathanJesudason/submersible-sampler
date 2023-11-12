@@ -79,13 +79,16 @@ namespace ConfigKeys {
     __k_auto FOLDER_VALVE      = "valveFolder";
     __k_auto PRESSURE_CUTOFF   = "cutoffPressure";
     __k_auto PRESSURE_MAX      = "maxPressure";
+    __k_auto RTC_OFFSET        = "RTCOffset";
+    __k_auto PWM_1_OSC_FREQ    = "OscillatorFrequency1";
+    __k_auto PWM_2_OSC_FREQ    = "OscillatorFrequency2";
 }  // namespace ConfigKeys
 
 namespace TaskKeys {
     __k_auto ID              = "id";
     __k_auto NAME            = "name";
     __k_auto STATUS          = "status";
-    __k_auto VALVES          = "valves";
+    __k_auto VALVES          = "pumps";
     __k_auto VALVES_OFFSET   = "valvesOffset";
     __k_auto CREATED_AT      = "createdAt";
     __k_auto SCHEDULE        = "schedule";
@@ -98,6 +101,7 @@ namespace TaskKeys {
     __k_auto SAMPLE_VOLUME   = "sampleVolume";
     __k_auto DRY_TIME        = "dryTime";
     __k_auto PRESERVE_TIME   = "preserveTime";
+    __k_auto PRESERVE_TIME_DRAW   = "preserveDrawTime";
     __k_auto CURR_VALVE   = "currentValve";
 }  // namespace TaskKeys
 
