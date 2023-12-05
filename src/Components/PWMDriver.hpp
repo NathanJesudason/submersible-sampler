@@ -2,6 +2,7 @@
 #include <KPFoundation.hpp>
 #include <Components/PumpStatus.hpp>
 #include <Adafruit_PWMServoDriver.h>
+#include <Servo.h>
 #include <Wire.h>
 
 
@@ -11,12 +12,15 @@ class PWMDriver : public KPComponent {
     int8_t* pumps;
     int pumpsCount;
     //Adafruit_PWMServoDriver driver = Adafruit_PWMServoDriver();
-    Adafruit_PWMServoDriver drives[2] = {Adafruit_PWMServoDriver(0x41), Adafruit_PWMServoDriver(0x42)};
+    //Adafruit_PWMServoDriver drives[2] = {Adafruit_PWMServoDriver(0x41), Adafruit_PWMServoDriver(0x42)};
+    Servo pwms[2] = { Servo(), Servo()};
     PWMDriver(const char * name, int pumpCount) : KPComponent(name), pumpsCount(pumpCount) {
       pumps = new int8_t[pumpCount]();
     }
     void setup() override {
-      //driver.begin();
+      //For testing with two channels, we are going to bypass using PWM for now.
+
+      /*
       drives[0].begin();
       drives[1].begin();
       println("setting pwm");
@@ -30,27 +34,34 @@ class PWMDriver : public KPComponent {
       writeAllPumpsOff();
       delay(5000);
       println("done");
+      */
+
+     pwms[0].attach(9);
+     pwms[1].attach(10);
+     writeAllPumpsOff();
+     delay(5000);
     }
 
     void writeAllPumpsOff(){
-      for(int i = 0; i < pumpsCount; i++){
-        drives[i / capacityPerDriver].writeMicroseconds(i % capacityPerDriver, 1500);
+      for(int i = 0; i < 2; i++){
+        //drives[i / capacityPerDriver].writeMicroseconds(i % capacityPerDriver, 1500);
+        pwms[i].writeMicroseconds(1500);
         pumps[i] = PumpStatus::off;
       }
     }
 
     void writePump(int pump, PumpStatus signal){
-      if(pump < 0 || pump >= pumpsCount)
+      if(pump < 0 || pump >= 2)
         return;
       //Temporarily reducing forwards and backwords strength
       //https://bluerobotics.com/wp-content/uploads/2022/04/thruster-usage-guide-PWM-signal.png 
       pumps[pump] = signal;
       if(pumps[pump] == PumpStatus::off)
-        drives[pump / capacityPerDriver].writeMicroseconds(pump % capacityPerDriver, 1500);
+        pwms[pump].writeMicroseconds(1500);
       else if (pumps[pump] == PumpStatus::forwards)
-        drives[pump / capacityPerDriver].writeMicroseconds(pump % capacityPerDriver, 1800);
+        pwms[pump].writeMicroseconds(1800);
       else
-        drives[pump / capacityPerDriver].writeMicroseconds(pump % capacityPerDriver, 1400);
+        pwms[pump].writeMicroseconds(1400);
     }
 
 };
