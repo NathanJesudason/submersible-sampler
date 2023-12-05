@@ -22,7 +22,7 @@ class PressureSensor : public KPComponent, public KPSubject<PressureSensorObserv
       // Initialize pressure sensor
       sensor.init();
 
-      sensor.setFluidDensity(1029); // kg/m^3 (freshwater, 1029 for seawater)
+      sensor.setFluidDensity(1029); // kg/m^3 (1029 for seawater)
 
       initialized = sensor.isInitialized();
       if(initialized) {

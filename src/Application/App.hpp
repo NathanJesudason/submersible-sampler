@@ -44,6 +44,8 @@ private:
 
   void taskDidComplete() override {}
 public:
+  unsigned long workaroundTaskSchedule;
+  bool taskToRun;
   KPFileLoader fileLoader{"file-loader", 10}; //SDCS is 10 for Atmel M0
   KPServer server{"web-server", "subsampler", "ilab_sampler"};
 
@@ -69,6 +71,7 @@ public:
 
   
   void setup() override {
+    taskToRun = false;
     Serial.begin(115200);
     while(!Serial) {};
 
@@ -251,6 +254,7 @@ public:
             if (time_now >= task.schedule - 10) {                
                 // Wake up between 10 secs of the actual schedule time
                 // Prepare an action to execute at exact time
+                taskToRun = false;
                 const auto timeUntil = task.schedule - time_now;
                 TimedAction delayTaskExecution;
                 delayTaskExecution.name     = "delayTaskExecution";
@@ -269,11 +273,15 @@ public:
             } else {
                 // Wake up before not due to alarm, reschedule anyway
                 power.scheduleNextAlarm(task.schedule - 8);  // 3 < x < 10
+                workaroundTaskSchedule = task.schedule;
+                taskToRun = true;
+                println("SCHEDULED TASK FOR EXECUTION!");
                 return ScheduleReturnCode::scheduled;
             }
         }
 
         currentTaskId = 0;
+        taskToRun = false;
         return ScheduleReturnCode::unavailable;
   }
 
@@ -341,7 +349,12 @@ public:
     }
 
   void update() override {
-    pwm.writePump(0, PumpStatus::forwards);
     KPController::update();
+    if(taskToRun){
+        if(workaroundTaskSchedule - 8 < now()){
+            scheduleNextActiveTask();
+        }
+    }
+    //pwm.writePump(1, PumpStatus::forwards);
   };
 };

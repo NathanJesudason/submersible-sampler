@@ -44,6 +44,12 @@ class Power : public KPComponent {
 
       //Note: unable to sync provider because of the way RTC is defined in library, so we manually set resync time in App.hpp
       setTime(rtc.now().unixtime());
+
+      pinMode(HardwarePins::RTC_INTERRUPT, INPUT);        // set up interrupt pin
+      digitalWrite(HardwarePins::RTC_INTERRUPT, HIGH);    // turn on pullup resistors
+
+
+      //rtc.writeSqwPinMode(pc);
     }
 
     /** ────────────────────────────────────────────────────────────────────────────
@@ -161,15 +167,15 @@ class Power : public KPComponent {
 
         //use second frequency if less than a 255 seconds
         if(seconds < 255)
-          rtc.enableCountdownTimer(PCF8523_FrequencyHour, min((seconds), (unsigned long) 255));
+          rtc.enableCountdownTimer(PCF8523_FrequencySecond, min((seconds), (unsigned long) 255));
         //Use minute frequency if time is less than 255 minustes
         if(seconds < 15300)
-          rtc.enableCountdownTimer(PCF8523_FrequencyHour, min((seconds / 60), (unsigned long) 255));
+          rtc.enableCountdownTimer(PCF8523_FrequencyMinute, min((seconds / 60), (unsigned long) 255));
         //Use hour frequency, clamp to 255 hours
         rtc.enableCountdownTimer(PCF8523_FrequencyHour, min((seconds / 3600), (unsigned long) 255));
         if (usingInterrupt) {
             println("Attaching Interrupt");
-            attachInterrupt(digitalPinToInterrupt(HardwarePins::RTC_INTERRUPT), rtc_isr, FALLING);
+            attachInterrupt(digitalPinToInterrupt(HardwarePins::RTC_INTERRUPT), rtc_isr, RISING);
         }
     }
 

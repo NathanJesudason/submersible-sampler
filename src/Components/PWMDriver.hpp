@@ -11,7 +11,7 @@ class PWMDriver : public KPComponent {
     int8_t* pumps;
     int pumpsCount;
     //Adafruit_PWMServoDriver driver = Adafruit_PWMServoDriver();
-    Adafruit_PWMServoDriver drives[2] = {Adafruit_PWMServoDriver(), Adafruit_PWMServoDriver(0x41)};
+    Adafruit_PWMServoDriver drives[2] = {Adafruit_PWMServoDriver(0x41), Adafruit_PWMServoDriver(0x42)};
     PWMDriver(const char * name, int pumpCount) : KPComponent(name), pumpsCount(pumpCount) {
       pumps = new int8_t[pumpCount]();
     }
@@ -20,10 +20,10 @@ class PWMDriver : public KPComponent {
       drives[0].begin();
       drives[1].begin();
       println("setting pwm");
-      drives[0].setOscillatorFrequency(27040020);
+      drives[0].setOscillatorFrequency(26000000);
       drives[1].setOscillatorFrequency(27000000);
-      drives[0].setPWMFreq(50);
-      drives[1].setPWMFreq(50);
+      drives[0].setPWMFreq(200);
+      drives[1].setPWMFreq(200);
       delay(10);
       //drives[1].setPWMFreq(1600);
       println("setting pumps off");
@@ -42,14 +42,15 @@ class PWMDriver : public KPComponent {
     void writePump(int pump, PumpStatus signal){
       if(pump < 0 || pump >= pumpsCount)
         return;
-      //Temporarily reducing forwards strength
+      //Temporarily reducing forwards and backwords strength
+      //https://bluerobotics.com/wp-content/uploads/2022/04/thruster-usage-guide-PWM-signal.png 
       pumps[pump] = signal;
       if(pumps[pump] == PumpStatus::off)
         drives[pump / capacityPerDriver].writeMicroseconds(pump % capacityPerDriver, 1500);
       else if (pumps[pump] == PumpStatus::forwards)
-        drives[pump / capacityPerDriver].writeMicroseconds(pump % capacityPerDriver, 1900);
+        drives[pump / capacityPerDriver].writeMicroseconds(pump % capacityPerDriver, 1800);
       else
-        drives[pump / capacityPerDriver].writeMicroseconds(pump % capacityPerDriver, 1100);
+        drives[pump / capacityPerDriver].writeMicroseconds(pump % capacityPerDriver, 1400);
     }
 
 };
