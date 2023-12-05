@@ -73,15 +73,18 @@ public:
   void setup() override {
     taskToRun = false;
     Serial.begin(115200);
-    while(!Serial) {};
-
-    addComponent(power);
-    randomSeed(now());
-
+    delay(3000);
+    //while(!Serial) {};
     
     addComponent(server);
     server.begin();
     setupServerRouting();
+
+    //Unclear if this is needed with both RTC and PWM driver(s) using I2C
+    Wire.begin();
+
+    addComponent(power);
+    randomSeed(now());
 
     addComponent(ActionScheduler::sharedInstance());
     addComponent(fileLoader);
@@ -355,6 +358,7 @@ public:
             scheduleNextActiveTask();
         }
     }
+    pwm.drives[0].setPWM(0, 0, 2048);
     //pwm.writePump(1, PumpStatus::forwards);
   };
 };
