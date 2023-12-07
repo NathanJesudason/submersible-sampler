@@ -20,7 +20,7 @@ class PWMDriver : public KPComponent {
       drives[0].begin();
       drives[1].begin();
       println("setting pwm");
-      drives[0].setOscillatorFrequency(26000000);
+      drives[0].setOscillatorFrequency(25000000);
       drives[1].setOscillatorFrequency(27000000);
       drives[0].setPWMFreq(200);
       drives[1].setPWMFreq(200);
@@ -51,6 +51,21 @@ class PWMDriver : public KPComponent {
         drives[pump / capacityPerDriver].writeMicroseconds(pump % capacityPerDriver, 1800);
       else
         drives[pump / capacityPerDriver].writeMicroseconds(pump % capacityPerDriver, 1400);
+    }
+
+
+    void writePumpVariable(int pump, int speed){
+      if(pump < 0 || pump >= pumpsCount)
+        return;
+      if((speed > 1900) || (speed < 1100))
+        return;
+      if(speed > 1500)
+        pumps[pump] = PumpStatus::forwards;
+      else if (speed < 1500)
+        pumps[pump] = PumpStatus::backwards;
+      else
+        pumps[pump] = PumpStatus::off;
+      drives[pump / capacityPerDriver].writeMicroseconds(pump % capacityPerDriver, speed);
     }
 
 };

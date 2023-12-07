@@ -9,6 +9,7 @@ namespace SharedStates {
 
     void Stop::enter(KPStateMachine & sm) {
         auto & app = *static_cast<App *>(sm.controller);
+        app.pwm.writeAllPumpsOff();
         /*app.pump.off();
         app.shift.writeAllRegistersLow();
         app.intake.off();
@@ -318,64 +319,44 @@ namespace SharedStates {
     }
 
     void OffshootPreload::enter(KPStateMachine & sm) {
+        // RIGHT NOW THIS IS DESIGNED FOR TWO CHANNEL ONLY
         // Intake valve is opened and the motor is runnning ...
         // Turnoff only the flush valve
-/*         auto & app = *static_cast<App *>(sm.controller);
-        app.shift.setAllRegistersLow();
-        app.shift.write();
-        app.intake.on();
-        setTimeCondition(5, [&app](){
-            app.pump.on();
-        });
+        auto & app = *static_cast<App *>(sm.controller);
+
         
         // Reserving space ahead of time for performance
-        reserve(app.vm.numberOfValvesInUse + 1);
-        println("Begin preloading procedure for ", app.vm.numberOfValvesInUse, " valves...");
+        reserve(3);
+        println("Begin preloading procedure for ", 2, " valves...");
 
         int counter      = 0;
-        int prevValvePin = 0;
-        for (const decltype(auto) valve : app.vm.valves) {
-            if (valve.status == ValveStatus::unavailable) {
+        int prevValvePin = -1;
+        //just 0 and 1 for now
+        for (int i = 0; i < 2; i++) {
+            if (app.vm.valves[i].status == ValveStatus::unavailable) {
                 continue;
             }
 
             // Skip the first register
-            auto valvePin = valve.id + app.shift.capacityPerRegister;
-            setTimeCondition(counter * preloadTime + 5, [&app, prevValvePin, valvePin]() {
-                if (prevValvePin) {
+            auto valvePin = app.vm.valves[i].id;
+            setTimeCondition(counter * preloadTime, [&app, prevValvePin, valvePin]() {
+                if (prevValvePin != -1) {
                     // Turn off the previous valve
-                    app.shift.setPin(prevValvePin, LOW);
-                    app.pump.off();
-                    app.shift.write();
+                    app.pwm.writePump(prevValvePin, PumpStatus::off);
                     println("done");
                 }
 
-                app.shift.setPin(valvePin, HIGH);
-                app.shift.write();
+                app.pwm.writePump(valvePin, PumpStatus::forwards);
                 
-                print("Flushing offshoot ", valvePin - app.shift.capacityPerRegister, "...");
-            });
-
-            setTimeCondition(counter * preloadTime + 6, [&app, prevValvePin, valvePin]() {
-                app.pump.on();
+                print("Flushing offshoot ", valvePin, "...");
             });
 
             prevValvePin = valvePin;
             counter++;
         }
 
-        auto const max_system_condition = [&]() {
-            //This conditional is for above system pressure
-            if(app.status.pressure >= app.status.maxSystemPressure) {
-                return true;
-            }
-            return false;
-        };
-
-        setCondition(max_system_condition, [&]() { sm.next(-1); }); */
-
         // Transition to the next state after the last valve
-        setTimeCondition( 6, [&]() { //MODIFIED TEMPORARILY FOR TESTING BEFORE I/O
+        setTimeCondition(counter * preloadTime, [&]() {
             println("done");
             sm.next();
         });
@@ -383,7 +364,7 @@ namespace SharedStates {
 
     void Preserve::enter(KPStateMachine & sm) {
         auto & app = *static_cast<App *>(sm.controller); 
-        app.pwm.writePump(app.currentValveIdToPin(), PumpStatus::forwards);
+        app.pwm.writePumpVariable(app.currentValveIdToPin(), 1600);
         /*
         app.pump.off();
         app.shift.writeAllRegistersLow();

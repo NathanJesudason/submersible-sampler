@@ -2,11 +2,12 @@
 #include <TimeLib.h>
 
 namespace API {
-    /*auto StartHyperFlush::operator()(App & app) -> R {
+    auto StartHyperFlush::operator()(App & app) -> R {
         decltype(auto) hyperFlushName = app.hyperFlushStateController.getCurrentState()->getName();
 
         R response;
         if (strcmp(HyperFlush::IDLE, hyperFlushName) == 0) {
+            println("Begin hyperflush");
             app.beginHyperFlush();
             response["success"] = "Begin preloading water";
         } else {
@@ -14,7 +15,7 @@ namespace API {
         }
 
         return response;
-    }*/
+    }
 
     auto StatusGet::operator()(App & app) -> R {
         R response;

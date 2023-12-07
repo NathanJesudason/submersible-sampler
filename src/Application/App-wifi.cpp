@@ -15,11 +15,11 @@ void App::setupServerRouting() {
         res.end();
     });
 
-    /*server.get("/api/preload", [this](Request &, Response & res) {
+    server.get("/api/preload", [this](Request &, Response & res) {
         const auto & response = dispatchAPI<API::StartHyperFlush>();
         res.json(response);
         res.end();
-    });*/
+    });
 
         // ────────────────────────────────────────────────────────────────────────────────
     // Get the current status
@@ -151,7 +151,7 @@ void App::setupServerRouting() {
         res.end();
     }); 
 
-        server.get("/api/valves/reset", [this](Request & req, Response & res) {
+    server.get("/api/valves/reset", [this](Request & req, Response & res) {
         for (int i = 0; i < config.numberOfValves; i++) {
             vm.setValveStatus(i, ValveStatus::Code(config.valves[i]));
         }

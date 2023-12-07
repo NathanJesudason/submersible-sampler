@@ -20,6 +20,7 @@
 #include <Utilities/JsonEncodableDecodable.hpp>
 
 #include <StateControllers/TaskStateController.hpp>
+#include <StateControllers/HyperFlushStateController.hpp>
 #include <Task/Task.hpp>
 #include <Task/TaskManager.hpp>
 
@@ -55,6 +56,7 @@ public:
   Status status;
 
   TaskStateController taskStateController;
+  HyperFlushStateController hyperFlushStateController;
 
   PressureSensor pressureSensor{"pressure-sensor"};
 
@@ -106,6 +108,13 @@ public:
     tm.init(config);
     tm.addObserver(this);
     tm.loadTasksFromDirectory(config.taskFolder);
+
+    hyperFlushStateController.configure([](HyperFlush::Config & config) {
+        config.preloadTime = 30;
+    });
+
+    addComponent(hyperFlushStateController);
+    hyperFlushStateController.idle();  // Wait in IDLE
 
     addComponent(taskStateController);
     taskStateController.addObserver(status);
@@ -338,6 +347,11 @@ public:
         }
     }
 
+    void beginHyperFlush() {
+        println("setting hf controller to begin");
+        hyperFlushStateController.begin();
+    }
+
   int currentValveIdToPin() {
         return status.currentValve;
   }
@@ -358,6 +372,17 @@ public:
             scheduleNextActiveTask();
         }
     }
+
+    //If switch is up and wifi is running
+    /*
+    if(digitalRead(10) && server.isRunning){
+        WiFi.end();
+        server.isRunning = false;
+    }
+    else if (!digitalRead(10) && !server.isRunning){
+        server.setup();
+        server.begin();
+    }*/
     //pwm.drives[0].setPWM(0, 0, 2048);
     //pwm.writePump(1, PumpStatus::forwards);
   };
