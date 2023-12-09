@@ -106,6 +106,10 @@ public:
         return true;
     }
 
+    float isBatteryLow() const {
+        return analogRead(HardwarePins::BATTERY_VOLTAGE) * (16.8 / 1023.0);
+    }
+
 #pragma region JSONDECODABLE
     static const char * decoderName() {
         return "Status";
@@ -152,7 +156,7 @@ public:
 			&& dest[SENSOR_FLOW].set(waterFlow) 
 			&& dest[CURRENT_TASK].set(currentTaskName)
 			&& dest[CURRENT_STATE].set(currentStateName) 
-            && dest[LOW_BATTERY].set(false)
+            && dest[LOW_BATTERY].set(isBatteryLow())
             && dest[SAMPLE_VOLUME].set(sampleVolume);
         // clang-format on
     }
