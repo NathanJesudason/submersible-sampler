@@ -53,6 +53,7 @@ public:
         auto & task = tasks[id];
         println(GREEN("Task Time betwen: "), task.timeBetween);
         task.schedule = now() + std::max(task.timeBetween, 5);
+        task.scheduledTask = true;
         if (++task.valveOffsetStart >= task.getNumberOfValves()) {
             return markTaskAsCompleted(id);
         }
