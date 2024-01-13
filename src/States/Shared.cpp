@@ -5,6 +5,7 @@ namespace SharedStates {
     void Idle::enter(KPStateMachine & sm) {
         auto & app = *static_cast<App *>(sm.controller);
         println(app.scheduleNextActiveTask().description());
+        println(app.scheduleDepthActiveTask().description());
     }
 
     void Stop::enter(KPStateMachine & sm) {

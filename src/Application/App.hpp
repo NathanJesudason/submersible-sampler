@@ -123,6 +123,11 @@ public:
     addComponent(pressureSensor);
     pressureSensor.addObserver(status);
 
+    status.onDepthInterrupt([this]() {
+      println(scheduleDepthActiveTask().description());
+      interrupts();
+    });
+
     // RTC Interrupt callback
     power.onInterrupt([this]() {
         println(GREEN("RTC Interrupted!"));
@@ -157,6 +162,10 @@ public:
     runForever(300000, "timeResync", [&](){
         setTime(power.rtc.now().unixtime());
     });
+
+    //RTC has preserved time, so we don't need to set it again
+    //but depth isn't, so now that tasks are loaded again, set depth check
+    scheduleDepthActiveTask();
 
   }
 
@@ -228,6 +237,42 @@ public:
     log.close();
   }
 
+
+  ScheduleReturnCode scheduleDepthActiveTask(){
+    status.preventShutdown = false;
+    for (auto id : tm.getActiveSortedDepthTaskIds()){
+      Task & task = tm.tasks[id];
+
+      //If this we're at the depth to trigger this task
+      if(status.maxPressure > task.depth){
+        if(currentTaskId == id){
+          status.preventShutdown = true;
+          continue;
+        } else if (currentTaskId){
+          //A scheduled task is running right now
+          println(RED("Task conflict"));
+          invalidateTaskAndFreeUpValves(task);
+          continue;
+        }
+        //run task
+        taskStateController.configure(task);
+
+        currentTaskId          = id;
+        status.preventShutdown = true;
+        vm.setValveStatus(task.valves[task.valveOffsetStart], ValveStatus::operating);
+        taskStateController.begin();
+        return ScheduleReturnCode::unavailable;
+      }
+
+      //This is the new lowest, so set check for depth here
+      status.depthCheck = task.depth;
+      return ScheduleReturnCode::scheduled;
+    }
+
+    status.depthCheck = -1;
+    return ScheduleReturnCode::unavailable;
+  }
+
   
     /** ────────────────────────────────────────────────────────────────────────────
      *  @brief Get the earliest upcoming task and schedule it
@@ -237,12 +282,13 @@ public:
      *  ──────────────────────────────────────────────────────────────────────────── */
     ScheduleReturnCode scheduleNextActiveTask(bool shouldStopCurrentTask = false) {
         status.preventShutdown = false;
-        for (auto id : tm.getActiveSortedTaskIds()) {
+        for (auto id : tm.getActiveSortedScheduledTaskIds()) {
             Task & task     = tm.tasks[id];
             time_t time_now = now();
 
             if (currentTaskId == id) {
-                // NOTE: Check logic here. Maybe not be correct yet
+                // NOTE: for now, don't have feature to cancel current task
+                /*
                 if (shouldStopCurrentTask) {
                     cancel("delayTaskExecution");
                     // if (status.currentStateName != HyperFlush::STOP) {
@@ -250,10 +296,14 @@ public:
                     // }
 
                     continue;
-                } else {
-                    status.preventShutdown = true;
-                    return ScheduleReturnCode::operating;
-                }
+                } else */
+                status.preventShutdown = true;
+                return ScheduleReturnCode::operating;
+            } else if (currentTaskId) {
+              // A task is running, but it isn't the most recent task
+              println(RED("Task conflict"));
+              invalidateTaskAndFreeUpValves(task);
+              continue;
             }
 
             if (time_now >= task.schedule) {

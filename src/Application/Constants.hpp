@@ -87,6 +87,7 @@ namespace TaskKeys {
     __k_auto VALVES_OFFSET   = "valvesOffset";
     __k_auto CREATED_AT      = "createdAt";
     __k_auto SCHEDULE        = "schedule";
+    __k_auto DEPTH           = "depth";
     __k_auto TIME_BETWEEN    = "timeBetween";
     __k_auto NOTES           = "notes";
     __k_auto DELETE          = "deleteOnCompletion";
@@ -98,6 +99,8 @@ namespace TaskKeys {
     __k_auto PRESERVE_TIME   = "preserveTime";
     __k_auto PRESERVE_TIME_DRAW   = "preserveDrawTime";
     __k_auto CURR_VALVE   = "currentValve";
+    __k_auto SCHEDULED_TASK = "scheduledTask";
+    __k_auto DEPTH_TASK = "depthTask";
 }  // namespace TaskKeys
 
 namespace ValveKeys {

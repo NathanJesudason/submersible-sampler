@@ -24,6 +24,7 @@ public:
 
     long createdAt = 0;
     long schedule  = 0;
+    long depth     = 0;
 
     int status      = TaskStatus::inactive;
     int timeBetween = 0;
@@ -33,6 +34,8 @@ public:
     int preserveTime   = 0;
 
     bool deleteOnCompletion = false;
+    bool scheduledTask = true;
+    bool depthTask = false;
 
     std::vector<uint8_t> valves;
 
@@ -103,7 +106,13 @@ public:
         }
         if(source.containsKey(SCHEDULE)){
             schedule       = source[SCHEDULE];
+            scheduledTask  = source[SCHEDULED_TASK];
         }
+        if(source.containsKey(DEPTH)){
+            depth          = source[DEPTH];
+            depthTask      = source[DEPTH_TASK];
+        }
+
         status         = source[STATUS];
         sampleTime     = source[SAMPLE_TIME];
         preserveDrawTime   = source[PRESERVE_TIME_DRAW];
@@ -129,13 +138,16 @@ public:
 			&& dst[NOTES].set((char *) notes)
 			&& dst[STATUS].set(status) 
 			&& dst[CREATED_AT].set(createdAt)
-			&& dst[SCHEDULE].set(schedule) 
+			&& dst[SCHEDULE].set(schedule)
+      && dst[DEPTH].set(depth) 
 			&& dst[SAMPLE_TIME].set(sampleTime)
 			&& dst[PRESERVE_TIME_DRAW].set(preserveDrawTime)
 			&& dst[PRESERVE_TIME].set(preserveTime)
 			&& dst[TIME_BETWEEN].set(timeBetween) 
 			&& dst[VALVES_OFFSET].set(getValveOffsetStart())
 			&& dst[DELETE].set(deleteOnCompletion)
+      && dst[SCHEDULED_TASK].set(scheduledTask)
+      && dst[DEPTH_TASK].set(depthTask)
 			&& copyArray(valves.data(), valves.size(), dst.createNestedArray(VALVES));
 	}  // clang-format on
 

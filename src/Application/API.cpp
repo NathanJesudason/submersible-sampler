@@ -132,6 +132,9 @@ namespace API {
         ScheduleReturnCode code = app.scheduleNextActiveTask();
         println(code.description());
 
+        code = app.scheduleDepthActiveTask();
+        println(code.description());
+
         response["success"] = "Task has been scheduled";
         return response;
     }

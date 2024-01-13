@@ -158,18 +158,39 @@ public:
      *
      *  @return std::vector<int> list of ids
      *  ──────────────────────────────────────────────────────────────────────────── */
-    std::vector<int> getActiveSortedTaskIds() {
+    std::vector<int> getActiveSortedScheduledTaskIds() {
         std::vector<int> result;
         result.reserve(tasks.size());
 
         for (const auto & kv : tasks) {
-            if (kv.second.status == TaskStatus::active) {
+            if (kv.second.status == TaskStatus::active && kv.second.scheduledTask) {
                 result.push_back(kv.first);
             }
         }
 
         std::sort(result.begin(), result.end(),
                   [this](int a, int b) { return tasks[a].schedule < tasks[b].schedule; });
+
+        return result;
+    }
+
+    /** ────────────────────────────────────────────────────────────────────────────
+     *  @brief Get the Active Task Ids sorted by their schedules (<)
+     *
+     *  @return std::vector<int> list of ids
+     *  ──────────────────────────────────────────────────────────────────────────── */
+    std::vector<int> getActiveSortedDepthTaskIds() {
+        std::vector<int> result;
+        result.reserve(tasks.size());
+
+        for (const auto & kv : tasks) {
+            if (kv.second.status == TaskStatus::active && kv.second.depthTask) {
+                result.push_back(kv.first);
+            }
+        }
+
+        std::sort(result.begin(), result.end(),
+                  [this](int a, int b) { return tasks[a].depth < tasks[b].depth; });
 
         return result;
     }

@@ -19,6 +19,10 @@ class Status : public JsonDecodable,
                public PressureSensorObserver {
 public:
     std::vector<int> valves;
+    std::function<void()> pressureDepthCallback;
+    void onDepthInterrupt(std::function<void()> callback) {
+        pressureDepthCallback = callback;
+    }
     int currentValve   = -1;
     float pressure     = 0;
     float temperature  = 0;
@@ -29,6 +33,9 @@ public:
     float sampleVolume = 0;
 
     float maxPressure = 0;
+    //-1 is unset, otherwise depth to trigger task check
+    float depthCheck  = -1;
+    
 
     bool preventShutdown = false;
 
@@ -67,6 +74,12 @@ private:
       pressure = p;
       temperature = t;
       maxPressure = max(pressure, maxPressure);
+
+      if(depthCheck && depthCheck < maxPressure && pressureDepthCallback){
+        noInterrupts();
+        depthCheck = -1;
+        pressureDepthCallback();
+      }
     }
 
     void valveDidUpdate(const Valve & valve) override {
