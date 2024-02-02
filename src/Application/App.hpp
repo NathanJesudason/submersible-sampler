@@ -27,6 +27,7 @@
 #include <Application/API.hpp>
 
 #include <Components/PressureSensor.hpp>
+#include <Components/FlowSensor.hpp>
 
 class App : public KPController, public TaskObserver {
 private:
@@ -59,6 +60,7 @@ public:
   HyperFlushStateController hyperFlushStateController;
 
   PressureSensor pressureSensor{"pressure-sensor"};
+  FlowSensor flowSensor{"flow-sensor"};
 
   ValveManager vm;
   TaskManager tm;
@@ -122,6 +124,9 @@ public:
 
     addComponent(pressureSensor);
     pressureSensor.addObserver(status);
+
+    addComponent(flowSensor);
+    flowSensor.addObserver(status);
 
     // RTC Interrupt callback
     power.onInterrupt([this]() {

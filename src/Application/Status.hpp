@@ -10,13 +10,15 @@
 #include <Valve/ValveStatus.hpp>
 #include <Valve/ValveObserver.hpp>
 #include <Components/PressureSensorObserver.hpp>
+#include <Components/FlowSensorObserver.hpp>
 
 class Status : public JsonDecodable,
                public JsonEncodable,
                public Printable,
                public ValveObserver,
                public KPStateMachineObserver,
-               public PressureSensorObserver {
+               public PressureSensorObserver,
+               public FlowSensorObserver {
 public:
     std::vector<int> valves;
     int currentValve   = -1;
@@ -59,6 +61,10 @@ private:
       return "Status-Pressure Sensor Observer";
     }
 
+    const char * FlowSensorObserverName() const override {
+      return "Status-Flow Sensor Observer";
+    }
+
         const char * KPStateMachineObserverName() const override {
         return "Status-KPStateMachine Observer";
     }
@@ -67,6 +73,11 @@ private:
       pressure = p;
       temperature = t;
       maxPressure = max(pressure, maxPressure);
+    }
+
+    void flowSensorDidUpdate(float f, float v) override {
+      waterFlow = f;
+      waterVolume = v;
     }
 
     void valveDidUpdate(const Valve & valve) override {
