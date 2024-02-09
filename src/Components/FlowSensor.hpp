@@ -10,7 +10,11 @@
 
 class FlowSensor : public KPComponent, public KPSubject<FlowSensorObserver> {
 
+  //Addr will have to change, because there is flow sensor for each line
+  //Add in code for multiplexer, 3 in total for up to 24 https://www.adafruit.com/product/2717
   public:
+  //we select which flow sensor to use based on the SC pin and addr of the multiplexer
+    const int multiplexerADDR = 0x70;
     const int ADDR = 0x50;
     FlowSensor(const char * name) : KPComponent(name) {}
     float flow;
@@ -22,8 +26,18 @@ class FlowSensor : public KPComponent, public KPSubject<FlowSensorObserver> {
       Wire.begin();
     }
 
-    void resetVolume() {
+    void startMeasurement(int valvePin) {
+      //valvePin corresponds to the different flow sensors
+      int multiplexerOffset = valvePin / 8;
+      Wire.beginTransmission(multiplexerADDR + multiplexerOffset);
+      Wire.write(1 << (valvePin % 8));
+      Wire.endTransmission();
       volume = 0.0;
+      initialized = true;
+    }
+
+    void endMeasurement(){
+      initialized = false;
     }
 
     

@@ -166,6 +166,7 @@ namespace SharedStates {
         // We set the latch valve to intake mode, turn on the filter valve, then the pump
         auto & app = *static_cast<App *>(sm.controller); 
         app.pwm.writePump(app.currentValveIdToPin(), PumpStatus::forwards);
+        app.flowSensor.startMeasurement(app.status.currentValve);
         setTimeCondition(time, [&]() { sm.next(0); });
     }
 
