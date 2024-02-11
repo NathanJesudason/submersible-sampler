@@ -27,7 +27,7 @@
 #include <Application/API.hpp>
 
 #include <Components/PressureSensor.hpp>
-#include <Components/FlowSensor.hpp>
+#include <Components/FlowSensorSLF3S.hpp>
 
 class App : public KPController, public TaskObserver {
 private:
