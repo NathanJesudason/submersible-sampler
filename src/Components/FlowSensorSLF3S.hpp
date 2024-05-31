@@ -60,10 +60,14 @@ class FlowSensor : public KPComponent, public KPSubject<FlowSensorObserver> {
 
 
     //PressureSensorData data = {sensor.pressure(), sensor.temperature()};
-    if(error != NO_ERROR){
-      //flow of a second 
-      volume += flow / 120.0;
-      updateObservers(&FlowSensorObserver::flowSensorDidUpdate, flow, volume);
+    if(error == NO_ERROR){
+      //flow of a second, volume being in L 
+      volume += (flow / 2000.0);
+      updateObservers(&FlowSensorObserver::flowSensorDidUpdate, flow / 1000.0, volume);
+      println(flow);
+      println(volume);
+    } else {
+      println("flow sensor error: ", error);
     }
   }
 
