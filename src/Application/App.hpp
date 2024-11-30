@@ -51,7 +51,7 @@ public:
   KPServer server{"web-server", "subsampler", "ilab_sampler"};
 
   Power power{"power"};
-  PWMDriver pwm{"pwm-driver", 16}; 
+  PWMDriver pwm{"pwm-driver"}; 
   Config config{ProgramSettings::CONFIG_FILE_PATH};
   Status status;
 
@@ -91,7 +91,7 @@ public:
     addComponent(ActionScheduler::sharedInstance());
     addComponent(fileLoader);
 
-    addComponent(pwm);
+    
 
     //
     // ─── LOADING CONFIG FILE ─────────────────────────────────────────
@@ -108,6 +108,10 @@ public:
     tm.init(config);
     tm.addObserver(this);
     tm.loadTasksFromDirectory(config.taskFolder);
+
+
+    pwm.init(config);
+    addComponent(pwm);
 
     hyperFlushStateController.configure([](HyperFlush::Config & config) {
         config.preloadTime = 30;
@@ -327,6 +331,11 @@ public:
         }
 
         for (auto v : task.valves) {
+            if(v > vm.valves.size()){
+                KPStringBuilder<100> error("Valve ", v, " is not in device configuration");
+                response["error"] = (char *) error;
+                return;
+            }
             switch (vm.valves[v].status) {
             case ValveStatus::unavailable: {
                 KPStringBuilder<100> error("Valve ", v, " is not available");

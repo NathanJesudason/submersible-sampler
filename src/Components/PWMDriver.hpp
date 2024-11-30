@@ -12,18 +12,24 @@ class PWMDriver : public KPComponent {
     int pumpsCount;
     //Adafruit_PWMServoDriver driver = Adafruit_PWMServoDriver();
     Adafruit_PWMServoDriver drives[2] = {Adafruit_PWMServoDriver(0x41), Adafruit_PWMServoDriver(0x42)};
-    PWMDriver(const char * name, int pumpCount) : KPComponent(name), pumpsCount(pumpCount) {
-      pumps = new int8_t[pumpCount]();
+    PWMDriver(const char * name) : KPComponent(name){}
+
+    void init(Config & config) {
+      pumpsCount = config.valveUpperBound;
+      pumps = new int8_t[pumpsCount]();
     }
+
     void setup() override {
       //driver.begin();
-      drives[0].begin();
-      drives[1].begin();
       println("setting pwm");
+      drives[0].begin(); 
       drives[0].setOscillatorFrequency(25000000);
-      drives[1].setOscillatorFrequency(27000000);
       drives[0].setPWMFreq(200);
-      drives[1].setPWMFreq(200);
+      if (pumpsCount > capacityPerDriver){
+        drives[1].begin();
+        drives[1].setOscillatorFrequency(27000000);
+        drives[1].setPWMFreq(200);
+      }
       delay(10);
       //drives[1].setPWMFreq(1600);
       println("setting pumps off");
