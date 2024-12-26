@@ -57,7 +57,9 @@ public:
      *
      *  @param id Id of the valve (usally the index number)
      *  ──────────────────────────────────────────────────────────────────────────── */
-    void setValveFreeIfNotYetSampled(int id) {
+    void setValveFreeIfNotYetSampled(unsigned int id) {
+        if(id > valves.size())
+            return;
         if (valves[id].status != ValveStatus::sampled) {
             setValveStatus(id, ValveStatus::free);
             updateObservers(&ValveObserver::valveDidUpdate, valves[id]);

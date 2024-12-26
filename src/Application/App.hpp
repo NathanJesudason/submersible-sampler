@@ -332,23 +332,23 @@ public:
 
         for (auto v : task.valves) {
             if(v > vm.valves.size()){
-                KPStringBuilder<100> error("Valve ", v, " is not in device configuration");
+                KPStringBuilder<100> error("Channel ", v, " is not in device configuration");
                 response["error"] = (char *) error;
                 return;
             }
             switch (vm.valves[v].status) {
             case ValveStatus::unavailable: {
-                KPStringBuilder<100> error("Valve ", v, " is not available");
+                KPStringBuilder<100> error("Channel ", v, " is not available");
                 response["error"] = (char *) error;
                 return;
             }
             case ValveStatus::sampled: {
-                KPStringBuilder<100> error("Valve ", v, " has already been sampled");
+                KPStringBuilder<100> error("Channel ", v, " has already been sampled");
                 response["error"] = (char *) error;
                 return;
             }
             case ValveStatus::operating: {
-                KPStringBuilder<100> error("Valve ", v, " is operating");
+                KPStringBuilder<100> error("Channel ", v, " is operating");
                 response["error"] = (char *) error;
                 return;
             }
